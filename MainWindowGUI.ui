@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>935</width>
+    <height>633</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Scraper</string>
+  </property>
+  <property name="layoutDirection">
+   <enum>Qt::LeftToRight</enum>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="30,70">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="1,2,3,4,1,1">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="topMargin">
+       <number>10</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
+       <number>10</number>
+      </property>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>59</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="scrapeAllButton">
+        <property name="styleSheet">
+         <string notr="true">QPushButton {padding: 25px;
+background-color: #4CAF50;
+border: 2px solid #008CBA;
+border-radius: 25px;
+color: white;
+font-size: 16px;}
+QPushButton:hover {
+background-color: #45a049;
+}
+QPushButton:pressed{
+background-color: #ff0000;
+}
+</string>
+        </property>
+        <property name="text">
+         <string>Scrape všeho</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="BRButton">
+        <property name="styleSheet">
+         <string notr="true">QPushButton {padding: 25px;
+background-color: #4CAF50;
+border: 2px solid #008CBA;
+border-radius: 25px;
+color: white;
+font-size: 16px;}
+QPushButton:hover {
+background-color: #45a049;
+}
+QPushButton:pressed{
+background-color: #ff0000;
+}
+</string>
+        </property>
+        <property name="text">
+         <string>BezRealitky</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="UDButton">
+        <property name="styleSheet">
+         <string notr="true">QPushButton {padding: 25px;
+background-color: #4CAF50;
+border: 2px solid #008CBA;
+border-radius: 25px;
+color: white;
+font-size: 16px;}
+QPushButton:hover {
+background-color: #45a049;
+}
+QPushButton:pressed{
+background-color: #ff0000;
+}
+</string>
+        </property>
+        <property name="text">
+         <string>UlovDomov</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="ExportButton">
+        <property name="styleSheet">
+         <string notr="true">QPushButton {padding: 25px;
+background-color: #4CAF50;
+border: 2px solid #008CBA;
+border-radius: 25px;
+color: white;
+font-size: 16px;}
+QPushButton:hover {
+background-color: #45a049;
+}
+QPushButton:pressed{
+background-color: #ff0000;
+}
+</string>
+        </property>
+        <property name="text">
+         <string>Exportuj excel
+ s nabídkami</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,40">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="CurrentListingButton">
+          <property name="styleSheet">
+           <string notr="true">QPushButton {padding: 25px;
+background-color: #4CAF50;
+border: 2px solid #008CBA;
+border-radius: 25px;
+color: white;
+font-size: 16px;}
+QPushButton:hover {
+background-color: #45a049;
+}
+QPushButton:pressed{
+background-color: #ff0000;
+}
+</string>
+          </property>
+          <property name="text">
+           <string>Aktuální nabídky</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="NewListingButton">
+          <property name="styleSheet">
+           <string notr="true">QPushButton {padding: 25px;
+background-color: #4CAF50;
+border: 2px solid #008CBA;
+border-radius: 25px;
+color: white;
+font-size: 16px;}
+QPushButton:hover {
+background-color: #45a049;
+}
+QPushButton:pressed{
+background-color: #ff0000;
+}
+</string>
+          </property>
+          <property name="text">
+           <string>Nové nabídky</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="RemoveListingButton">
+          <property name="styleSheet">
+           <string notr="true">QPushButton {padding: 25px;
+background-color: #4CAF50;
+border: 2px solid #008CBA;
+border-radius: 25px;
+color: white;
+font-size: 16px;}
+QPushButton:hover {
+background-color: #45a049;
+}
+QPushButton:pressed{
+background-color: #ff0000;
+}
+</string>
+          </property>
+          <property name="text">
+           <string>Stažené nabídky</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="tableWidget"/>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
