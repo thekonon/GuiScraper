@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="1" column="2">
-      <widget class="QLineEdit" name="lineEdit_2"/>
+      <widget class="QLineEdit" name="UDUrlEdit"/>
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="label_3">
@@ -34,7 +34,7 @@
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="BRUrlEdit"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
@@ -44,15 +44,15 @@
       </widget>
      </item>
      <item row="3" column="2">
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QComboBox" name="BrowserSelectCombo">
        <item>
         <property name="text">
-         <string>FireFox - silent</string>
+         <string>Firefox - silent</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>FireFox - normal</string>
+         <string>Firefox - normal</string>
         </property>
        </item>
        <item>

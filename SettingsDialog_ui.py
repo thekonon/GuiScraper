@@ -28,10 +28,10 @@ class Ui_Dialog(object):
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout = QGridLayout()
         self.gridLayout.setObjectName(u"gridLayout")
-        self.lineEdit_2 = QLineEdit(Dialog)
-        self.lineEdit_2.setObjectName(u"lineEdit_2")
+        self.UDUrlEdit = QLineEdit(Dialog)
+        self.UDUrlEdit.setObjectName(u"UDUrlEdit")
 
-        self.gridLayout.addWidget(self.lineEdit_2, 1, 2, 1, 1)
+        self.gridLayout.addWidget(self.UDUrlEdit, 1, 2, 1, 1)
 
         self.label_3 = QLabel(Dialog)
         self.label_3.setObjectName(u"label_3")
@@ -43,23 +43,23 @@ class Ui_Dialog(object):
 
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
 
-        self.lineEdit = QLineEdit(Dialog)
-        self.lineEdit.setObjectName(u"lineEdit")
+        self.BRUrlEdit = QLineEdit(Dialog)
+        self.BRUrlEdit.setObjectName(u"BRUrlEdit")
 
-        self.gridLayout.addWidget(self.lineEdit, 0, 2, 1, 1)
+        self.gridLayout.addWidget(self.BRUrlEdit, 0, 2, 1, 1)
 
         self.label_2 = QLabel(Dialog)
         self.label_2.setObjectName(u"label_2")
 
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
 
-        self.comboBox = QComboBox(Dialog)
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.setObjectName(u"comboBox")
+        self.BrowserSelectCombo = QComboBox(Dialog)
+        self.BrowserSelectCombo.addItem("")
+        self.BrowserSelectCombo.addItem("")
+        self.BrowserSelectCombo.addItem("")
+        self.BrowserSelectCombo.setObjectName(u"BrowserSelectCombo")
 
-        self.gridLayout.addWidget(self.comboBox, 3, 2, 1, 1)
+        self.gridLayout.addWidget(self.BrowserSelectCombo, 3, 2, 1, 1)
 
 
         self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
@@ -93,9 +93,9 @@ class Ui_Dialog(object):
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Prohl\u00ed\u017ee\u010d", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"BezRealitkyURL", None))
         self.label_2.setText(QCoreApplication.translate("Dialog", u"UlovDomovURL", None))
-        self.comboBox.setItemText(0, QCoreApplication.translate("Dialog", u"FireFox - silent", None))
-        self.comboBox.setItemText(1, QCoreApplication.translate("Dialog", u"FireFox - normal", None))
-        self.comboBox.setItemText(2, QCoreApplication.translate("Dialog", u"Chrome", None))
+        self.BrowserSelectCombo.setItemText(0, QCoreApplication.translate("Dialog", u"Firefox - silent", None))
+        self.BrowserSelectCombo.setItemText(1, QCoreApplication.translate("Dialog", u"Firefox - normal", None))
+        self.BrowserSelectCombo.setItemText(2, QCoreApplication.translate("Dialog", u"Chrome", None))
 
         self.saveButton.setText(QCoreApplication.translate("Dialog", u"Save", None))
     # retranslateUi

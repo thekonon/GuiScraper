@@ -1,4 +1,4 @@
-import sys, re, webbrowser
+import sys, re, webbrowser, json
 from typing import Optional
 import pandas as pd
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QWidget, QDialog
@@ -24,18 +24,42 @@ def is_valid_url(url):
 class SettingsDialogWrapper(QDialog, Ui_Dialog):
     def __init__(self, parent):
         super().__init__()
-
-        # Call the setupUi method from the generated UI class to set up the dialog
+        self.parent = parent
         self.setupUi(self)
-
-        # Connect any signals and slots as needed
+        self.initialize_values()
         self.saveButton.clicked.connect(self.on_save_button_clicked)
-
+    
+    def initialize_values(self):
+        self.BRUrlEdit.setText(self.parent.bez_realitky_url)
+        self.BRUrlEdit.setCursorPosition(0)
+        self.UDUrlEdit.setText(self.parent.ulov_domov_url)
+        self.UDUrlEdit.setCursorPosition(0)
+        if self.parent.browser == "Chrome":
+            # self.BrowserSelectCombo.itm
+            print('setting Chrome')
+            self.BrowserSelectCombo.setCurrentText("Chrome")
+        elif self.parent.browser == "Firefox":
+            if self.parent.is_silent:
+                print('Firefox - silent')
+                self.BrowserSelectCombo.setCurrentText("Firefox - silent")
+            else:
+                print('Firefox - normal')
+                self.BrowserSelectCombo.setCurrentText("Firefox - normal")
+    
     def on_save_button_clicked(self):
-        # Example function to handle the "Save" button click
         print("Save button clicked!")
-        # Add your custom logic here...
-
+        self.parent.bez_realitky_url = self.BRUrlEdit.text()
+        self.parent.ulov_domov_url = self.UDUrlEdit.text()
+        if self.BrowserSelectCombo.currentText() == "Chrome":
+            self.parent.browser = "Chrome"
+        elif self.BrowserSelectCombo.currentText() == "Firefox - silent":
+            self.parent.browser = "Firefox"
+            self.parent.is_silent = 1
+        elif self.BrowserSelectCombo.currentText() == "Firefox - normal":
+            self.parent.browser = "Firefox"
+            self.parent.is_silent = 0
+        self.parent.save_config()
+        
     def show(self):
         # Show the settings dialog
         self.setWindowTitle("Settings Dialog")
@@ -81,36 +105,58 @@ class GuiLoader(QMainWindow, Ui_MainWindow):
     def on_settings_button_clicked(self):
         print('Settings being opened')
         dialog = SettingsDialogWrapper(self)
+        self.setEnabled(False)
         dialog.show()
+        self.setEnabled(True)
 
 
 class ScrapperApp(GuiLoader):
-    def __init__(self, table:pd.DataFrame):
+    def __init__(self):
         # Set necessary attributes and settings before creating the QGuiApplication instance
         QApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
         QApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
-        self.data_table = table
         self.app = QApplication(sys.argv)
         super().__init__()
+        self.init_variables()
         self.show()
         sys.exit(self.app.exec())
     
+    def init_variables(self):
+        """
+        Internal variables are initialized here 
+        """
+        self._json_data_file_name = "config.json"
+        try:
+            with open(self._json_data_file_name, 'r') as json_file:
+                loaded_list = json.load(json_file)     
+        except:
+            print('config.json not found setting default values')
+            loaded_list = {'bez_realitky_url': "www.bezrealitky.cz",
+                           'ulov_domov_url': "www.ulovdomov.cz",
+                           'browser': 'firefox',
+                           'is_silent': 0}
+        self.__dict__.update(loaded_list)
+        
+    def save_config(self):
+        loaded_list = {'bez_realitky_url': self.bez_realitky_url,
+                           'ulov_domov_url': self.ulov_domov_url,
+                           'browser': self.browser,
+                           'is_silent': self.is_silent}
+        print('saving')
+        with open(self._json_data_file_name, 'w') as json_file:
+            json.dump(loaded_list, json_file)
+        print('Done')
     def on_br_button_clicked(self):
         print("BezRealitky button clicked!")
-        # self.bez_realitky_scraper = BezrealitkyScraper()
+        self.bez_realitky_scraper = BezrealitkyScraper(browser='Firefox', web_page_link=self.bez_realitky_url, IS_SILENT=self.is_silent)
+        self.data_table = self.bez_realitky_scraper.scraped_data.get_dataframe()
     def print_table(self):
         table_widget = self.tableWidget
         df_table = self.data_table
         
-        if not hasattr(self, 'data_table'):
-            # Create a new row with the necessary data
-            df_table = pd.DataFrame([['Data 1', 'Data 2', 'Data 3']])  # Replace with your actual data
-            table_widget.setColumnCount(df_table.shape[1])
-            table_widget.setRowCount(1)
-        else:
-            table_widget.setRowCount(df_table.shape[0])
-            table_widget.setColumnCount(df_table.shape[1])
-            table_widget.setHorizontalHeaderLabels(df_table.columns)
+        table_widget.setRowCount(df_table.shape[0])
+        table_widget.setColumnCount(df_table.shape[1])
+        table_widget.setHorizontalHeaderLabels(df_table.columns)
 
         for row in range(df_table.shape[0]):
             for col in range(df_table.shape[1]):

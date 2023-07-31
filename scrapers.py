@@ -4,7 +4,12 @@ from selenium import webdriver
 from selenium.common.exceptions import (ElementNotInteractableException,
                                         NoSuchElementException)
 from selenium.webdriver.common.by import By
+from datetime import datetime
 
+def get_current_datetime_string():
+    now = datetime.now()
+    formatted_date_time = now.strftime("%Y-%m-%d-%H-%M-%S")
+    return formatted_date_time
 
 class ScrapedDataHolder():
     """
@@ -41,9 +46,9 @@ class ScrapedDataHolder():
         return {**extra_dictionary, **self.get_dictionary()}
     
     def get_dataframe(self):
-        return pd.DataFrame(self.getDictionary())
+        return pd.DataFrame(self.get_dictionary())
     def get_extended_dataframe(self):
-        return pd.DataFrame(self.getDictionary())
+        return pd.DataFrame(self.get_extended_dictionary())
     
 class MyScraper:
     """
@@ -185,7 +190,7 @@ class BezrealitkyScraper(MyScraper):
             self.scraped_data.price.append(article.find_element(By.XPATH, self._price_xpath).text)
             self.scraped_data.link.append(article.find_element(By.XPATH, self._link_xpath).get_attribute('href'))
             self.scraped_data.web_page.append(self.web_page_name)
-            self.scraped_data.date.append()
+            self.scraped_data.date.append(get_current_datetime_string())
             try:
                 self.scraped_data.extra_price.append(article.find_element(By.XPATH, self._extra_price_xpath).text)
             except NoSuchElementException:
