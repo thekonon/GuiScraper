@@ -1,7 +1,7 @@
 from pysideapp import ScrapperApp
 import pandas as pd
 
-def import_excel_to_dataframe(file_path):
+def import_excel_to_dataframe(file_path):   
     try:
         # Read the Excel file and load the specified sheet into a DataFrame
         df = pd.read_excel(file_path)

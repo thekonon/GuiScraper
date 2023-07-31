@@ -1,10 +1,13 @@
 import sys, re, webbrowser
+from typing import Optional
 import pandas as pd
-from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QWidget, QDialog
 from PySide6.QtCore import Qt
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
 from MainWindowGUI_ui import Ui_MainWindow
+from SettingsDialog_ui import Ui_Dialog
+from scrapers import BezrealitkyScraper
 
 def is_valid_url(url):
     # Regular expression pattern to match a valid URL
@@ -17,6 +20,26 @@ def is_valid_url(url):
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
     return bool(re.match(url_pattern, url))
+
+class SettingsDialogWrapper(QDialog, Ui_Dialog):
+    def __init__(self, parent):
+        super().__init__()
+
+        # Call the setupUi method from the generated UI class to set up the dialog
+        self.setupUi(self)
+
+        # Connect any signals and slots as needed
+        self.saveButton.clicked.connect(self.on_save_button_clicked)
+
+    def on_save_button_clicked(self):
+        # Example function to handle the "Save" button click
+        print("Save button clicked!")
+        # Add your custom logic here...
+
+    def show(self):
+        # Show the settings dialog
+        self.setWindowTitle("Settings Dialog")
+        super().exec_()
 
 class GuiLoader(QMainWindow, Ui_MainWindow):
     """_summary_
@@ -35,15 +58,47 @@ class GuiLoader(QMainWindow, Ui_MainWindow):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.tableWidget.editItem(self.tableWidget.currentItem())
-            
     def setup_button_actions(self):
         # Connect button clicks to respective slot or function
-        self.scrapeAllButton.clicked.connect(self.on_scrape_all_button_clicked)
+        self.scrapeAllButton.clicked.connect(self.print_table)
         self.BRButton.clicked.connect(self.on_br_button_clicked)
         self.UDButton.clicked.connect(self.on_ud_button_clicked)
-        self.tableWidget.itemDoubleClicked.connect(self.on_table_widget_item_clicked)        
-    # Define the functions to be executed when buttons are clicked
-    def on_scrape_all_button_clicked(self):
+        self.tableWidget.itemDoubleClicked.connect(self.on_table_widget_item_clicked)       
+        self.tableWidget.itemSelectionChanged.connect(self.on_column_selected)
+        self.settingsButton.clicked.connect(self.on_settings_button_clicked)
+    
+    def on_ud_button_clicked(self):
+        print("UlovDomov button clicked!")    
+    def on_table_widget_item_clicked(self, item):
+        if is_valid_url(item.text()):
+            webbrowser.open(item.text())
+    def on_column_selected(self):
+        if len(self.tableWidget.selectedItems())>1:
+            selected_columns = list({index.column() for index in self.tableWidget.selectedIndexes()})
+            self.data_table = self.data_table.sort_values(by=self.data_table.columns[selected_columns[0]])
+            print('Sorting')
+            self.print_table()
+    def on_settings_button_clicked(self):
+        print('Settings being opened')
+        dialog = SettingsDialogWrapper(self)
+        dialog.show()
+
+
+class ScrapperApp(GuiLoader):
+    def __init__(self, table:pd.DataFrame):
+        # Set necessary attributes and settings before creating the QGuiApplication instance
+        QApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+        QApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
+        self.data_table = table
+        self.app = QApplication(sys.argv)
+        super().__init__()
+        self.show()
+        sys.exit(self.app.exec())
+    
+    def on_br_button_clicked(self):
+        print("BezRealitky button clicked!")
+        # self.bez_realitky_scraper = BezrealitkyScraper()
+    def print_table(self):
         table_widget = self.tableWidget
         df_table = self.data_table
         
@@ -62,25 +117,10 @@ class GuiLoader(QMainWindow, Ui_MainWindow):
                 value = str(df_table.iat[row, col])
                 item = QTableWidgetItem(value)
                 table_widget.setItem(row, col, item)
-        table_widget.resizeColumnsToContents()
-    def on_br_button_clicked(self):
-        print("BezRealitky button clicked!")
-    def on_ud_button_clicked(self):
-        print("UlovDomov button clicked!")    
-    def on_table_widget_item_clicked(self, item):
-        if is_valid_url(item.text()):
-            webbrowser.open(item.text())
-
-class ScrapperApp(GuiLoader):
-    def __init__(self, table:pd.DataFrame):
-        # Set necessary attributes and settings before creating the QGuiApplication instance
-        QApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
-        QApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
-        self.data_table = table
-        self.app = QApplication(sys.argv)
-        super().__init__()
-        self.show()
-        sys.exit(self.app.exec())
+                
+        table_widget.resizeColumnsToContents() 
+    def set_progress_bar(self, percent:float):
+        self.progressBar.setValue(percent)
 
 if __name__ == "__main__":
     window = ScrapperApp()

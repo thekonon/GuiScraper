@@ -19,7 +19,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="20,70">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="1,2,3,4,1,1">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="2,2,3,4,0,0,1">
       <property name="spacing">
        <number>10</number>
       </property>
@@ -46,7 +46,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>59</height>
+          <height>60</height>
          </size>
         </property>
        </spacer>
@@ -118,17 +118,33 @@ background-color: #ff0000;
        </widget>
       </item>
       <item>
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+       <widget class="QProgressBar" name="progressBar">
+        <property name="value">
+         <number>0</number>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="settingsButton">
+        <property name="styleSheet">
+         <string notr="true">QPushButton {padding: 25px;
+background-color: #4CAF50;
+border: 2px solid #008CBA;
+border-radius: 25px;
+color: white;
+font-size: 16px;}
+QPushButton:hover {
+background-color: #45a049;
+}
+QPushButton:pressed{
+background-color: #ff0000;
+}
+</string>
         </property>
-       </spacer>
+        <property name="text">
+         <string>Nastavení</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="ExportButton">

@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QMainWindow,
-    QPushButton, QSizePolicy, QSpacerItem, QTableWidget,
-    QTableWidgetItem, QVBoxLayout, QWidget)
+    QProgressBar, QPushButton, QSizePolicy, QSpacerItem,
+    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -33,7 +33,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.setSpacing(10)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(10, 10, 10, 10)
-        self.verticalSpacer = QSpacerItem(20, 59, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 60, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
 
@@ -91,9 +91,29 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.UDButton)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.progressBar = QProgressBar(self.centralwidget)
+        self.progressBar.setObjectName(u"progressBar")
+        self.progressBar.setValue(0)
 
-        self.verticalLayout.addItem(self.verticalSpacer_2)
+        self.verticalLayout.addWidget(self.progressBar)
+
+        self.settingsButton = QPushButton(self.centralwidget)
+        self.settingsButton.setObjectName(u"settingsButton")
+        self.settingsButton.setStyleSheet(u"QPushButton {padding: 25px;\n"
+"background-color: #4CAF50;\n"
+"border: 2px solid #008CBA;\n"
+"border-radius: 25px;\n"
+"color: white;\n"
+"font-size: 16px;}\n"
+"QPushButton:hover {\n"
+"background-color: #45a049;\n"
+"}\n"
+"QPushButton:pressed{\n"
+"background-color: #ff0000;\n"
+"}\n"
+"")
+
+        self.verticalLayout.addWidget(self.settingsButton)
 
         self.ExportButton = QPushButton(self.centralwidget)
         self.ExportButton.setObjectName(u"ExportButton")
@@ -113,12 +133,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.ExportButton)
 
-        self.verticalLayout.setStretch(0, 1)
+        self.verticalLayout.setStretch(0, 2)
         self.verticalLayout.setStretch(1, 2)
         self.verticalLayout.setStretch(2, 3)
         self.verticalLayout.setStretch(3, 4)
-        self.verticalLayout.setStretch(4, 1)
-        self.verticalLayout.setStretch(5, 1)
+        self.verticalLayout.setStretch(6, 1)
 
         self.horizontalLayout_2.addLayout(self.verticalLayout)
 
@@ -207,6 +226,7 @@ class Ui_MainWindow(object):
         self.scrapeAllButton.setText(QCoreApplication.translate("MainWindow", u"Scrape v\u0161eho", None))
         self.BRButton.setText(QCoreApplication.translate("MainWindow", u"BezRealitky", None))
         self.UDButton.setText(QCoreApplication.translate("MainWindow", u"UlovDomov", None))
+        self.settingsButton.setText(QCoreApplication.translate("MainWindow", u"Nastaven\u00ed", None))
         self.ExportButton.setText(QCoreApplication.translate("MainWindow", u"Exportuj excel\n"
 " s nab\u00eddkami", None))
         self.CurrentListingButton.setText(QCoreApplication.translate("MainWindow", u"Aktu\u00e1ln\u00ed nab\u00eddky", None))
