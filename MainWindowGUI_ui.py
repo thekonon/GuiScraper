@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(935, 633)
+        MainWindow.resize(1389, 633)
         MainWindow.setLayoutDirection(Qt.LeftToRight)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -193,7 +193,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addLayout(self.verticalLayout_2)
 
-        self.horizontalLayout_2.setStretch(0, 30)
+        self.horizontalLayout_2.setStretch(0, 20)
         self.horizontalLayout_2.setStretch(1, 70)
         MainWindow.setCentralWidget(self.centralwidget)
 
