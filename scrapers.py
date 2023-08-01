@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.common.exceptions import (ElementNotInteractableException,
                                         NoSuchElementException)
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
 from datetime import datetime
 
 def get_current_datetime_string():
@@ -80,15 +81,18 @@ class MyScraper:
         
         #Firefox browser is choosen
         if self.browser == 'Firefox':
+            options = Options() 
             #Silent mode is choosen
             if self.IS_SILENT:
                 print('Silent mode activated')
-                os.environ['MOZ_HEADLESS'] = '1'
+                options.add_argument("-headless") 
+                # os.environ['MOZ_HEADLESS'] = '1'
             else:
-                os.unsetenv('MOZ_HEADLESS')
+                print('Normal mode activated')
+                # os.unsetenv('MOZ_HEADLESS')
             print('Openning browser')
             #Initialize driver
-            self.driver = webdriver.Firefox()
+            self.driver = webdriver.Firefox(options=options)
             print('Maximalizing')
             #Maximalize window
             self.driver.maximize_window()

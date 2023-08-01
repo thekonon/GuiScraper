@@ -1,4 +1,4 @@
-import sys, re, webbrowser, json
+import sys, re, webbrowser, json, glob, os
 from typing import Optional
 import pandas as pd
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QWidget, QDialog
@@ -7,7 +7,7 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
 from MainWindowGUI_ui import Ui_MainWindow
 from SettingsDialog_ui import Ui_Dialog
-from scrapers import BezrealitkyScraper
+from scrapers import BezrealitkyScraper, get_current_datetime_string
 
 def is_valid_url(url):
     # Regular expression pattern to match a valid URL
@@ -21,6 +21,7 @@ def is_valid_url(url):
 
     return bool(re.match(url_pattern, url))
 
+
 class SettingsDialogWrapper(QDialog, Ui_Dialog):
     def __init__(self, parent):
         super().__init__()
@@ -30,7 +31,7 @@ class SettingsDialogWrapper(QDialog, Ui_Dialog):
         self.saveButton.clicked.connect(self.on_save_button_clicked)
     
     def initialize_values(self):
-        self.BRUrlEdit.setText(self.parent.bez_realitky_url)
+        self.BRUrlEdit.setText(self.parent.bez_realitky_url) 
         self.BRUrlEdit.setCursorPosition(0)
         self.UDUrlEdit.setText(self.parent.ulov_domov_url)
         self.UDUrlEdit.setCursorPosition(0)
@@ -87,15 +88,28 @@ class GuiLoader(QMainWindow, Ui_MainWindow):
         self.scrapeAllButton.clicked.connect(self.print_table)
         self.BRButton.clicked.connect(self.on_br_button_clicked)
         self.UDButton.clicked.connect(self.on_ud_button_clicked)
+        self.ExportButton.clicked.connect(self.on_export_button_clicked)
         self.tableWidget.itemDoubleClicked.connect(self.on_table_widget_item_clicked)       
         self.tableWidget.itemSelectionChanged.connect(self.on_column_selected)
-        self.settingsButton.clicked.connect(self.on_settings_button_clicked)
-    
+        self.settingsButton.clicked.connect(self.on_settings_button_clicked)  
     def on_ud_button_clicked(self):
         print("UlovDomov button clicked!")    
     def on_table_widget_item_clicked(self, item):
-        if is_valid_url(item.text()):
-            webbrowser.open(item.text())
+        url = item.text()
+        if is_valid_url(url):
+            try:
+                print("Opening page: "+url)
+                webbrowser.open('http://seznam.cz',new=0)
+            except Exception as e:
+                pass
+            finally:
+                print('done')
+            # if webbrowser.get("firefox").open_new_tab("about:blank"):
+            #     # If Firefox is responsive, open the URL in a new tab
+            #     webbrowser.get("firefox").open_new_tab(url)
+            # else:
+            #     # If Firefox is not responsive, use a different browser
+            #     webbrowser.get("chrome").open(url)
     def on_column_selected(self):
         if len(self.tableWidget.selectedItems())>1:
             selected_columns = list({index.column() for index in self.tableWidget.selectedIndexes()})
@@ -130,6 +144,7 @@ class ScrapperApp(GuiLoader):
             with open(self._json_data_file_name, 'r') as json_file:
                 loaded_list = json.load(json_file)     
         except:
+            #Default values
             print('config.json not found setting default values')
             loaded_list = {'bez_realitky_url': "www.bezrealitky.cz",
                            'ulov_domov_url': "www.ulovdomov.cz",
@@ -148,8 +163,19 @@ class ScrapperApp(GuiLoader):
         print('Done')
     def on_br_button_clicked(self):
         print("BezRealitky button clicked!")
-        self.bez_realitky_scraper = BezrealitkyScraper(browser='Firefox', web_page_link=self.bez_realitky_url, IS_SILENT=self.is_silent)
-        self.data_table = self.bez_realitky_scraper.scraped_data.get_dataframe()
+        try:
+            self.bez_realitky_scraper = BezrealitkyScraper(browser=self.browser, web_page_link=self.bez_realitky_url, IS_SILENT=self.is_silent)
+            self.data_table = self.bez_realitky_scraper.scraped_data.get_dataframe()
+        except Exception as e:
+            print('Error appealed during scraping')
+        finally:    
+            print('Closing browser')
+            self.bez_realitky_scraper.driver.close()
+        self.print_table()
+    def on_export_button_clicked(self):
+        print('Exporting table')
+        self.remove_old_excels()
+        self.data_table.to_excel(f"ScrapedData{get_current_datetime_string()}.xlsx")
     def print_table(self):
         table_widget = self.tableWidget
         df_table = self.data_table
@@ -167,7 +193,17 @@ class ScrapperApp(GuiLoader):
         table_widget.resizeColumnsToContents() 
     def set_progress_bar(self, percent:float):
         self.progressBar.setValue(percent)
-
+    def remove_old_excels(self):
+        files_to_remove = glob.glob(os.path.join('', "ScrapedData*.xlsx"))
+        if len(files_to_remove) == 0:
+            print("No files found matching the pattern.")
+        else:
+            # Confirm your intentions before removing the files
+            print(f"Found {len(files_to_remove)} files matching the pattern:")
+            for file_path in files_to_remove:
+                print(file_path)
+                os.remove(file_path)
+            print("Files removed successfully.")
 if __name__ == "__main__":
     window = ScrapperApp()
     
