@@ -209,8 +209,119 @@ class BezrealitkyScraper(MyScraper):
         #Scroll the page down
         print('Scrolling down')
         self.driver.execute_script("window.scrollTo(0, 10000)")
+
+class UlovDomovScraper(MyScraper):
+    """Scrapper for UlovDomov.cz page
+
+    Args:
+        MyScraper(): _description_
+    """
+    def __init__(self, *args, IS_SILENT=1, browser = 'Firefox', **kwargs):
+        """
+        ## Create a instance of UlovDomov scraper, input variables are: \n
+         - web_page_link = url
+         - IS_SILENT = 0 / 1
+         - browser = 'Firefox' / 'Chrome' 
+        """
+        if not 'web_page_link' in kwargs:
+            raise ValueError("No URL was specified in 'web_page_link' variable")
+        #Constructor for Bezrealitky.cz scraping
+        super().__init__(
+            web_page_name = 'UlovDomov',
+            web_page_link = kwargs['web_page_link'],
+            browser = browser,
+            IS_SILENT = IS_SILENT)
+        self.scraped_data = ScrapedDataHolder()
+        #Constant private properties      
+        self.init_constant_properties()
+        self.full_scrape_cycle() 
+    def init_constant_properties(self):
+        """Constants for searching are stored here"""
+        self._cookie_button_xpath = '//*[@id="CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll"]'
+        self._articles_xpath =      '/html/body/div[2]/div[2]/div/div[2]/div[1]/div/div/div[2]'
+        self._article_info_xpath =  'div[1]/div/div[2]/div/div[1]/a'
+        self._link_xpath =          'div[1]/div/div[2]/div/div[1]/a'
+    def full_scrape_cycle(self):
+        self.click_cookie_button()
+        time.sleep(0.5)
+        self.extract_data_from_page()
+        print(self.scraped_data.get_dictionary())
+        pass
+    def click_cookie_button(self):
+        #Tries to click on cookie button, if no such button exists, waits 1 sec and tries again
+        counter = 0
+        while True:
+            try:
+                print('Clicking Cookie button')
+                self.driver.find_element(By.XPATH, self._cookie_button_xpath).click()
+                print('Cookie Button successfully clicked')
+                break
+            except ElementNotInteractableException:
+                #No clickable button found
+                time.sleep(1)
+                counter+=1
+            except NoSuchElementException:
+                #No button found
+                time.sleep(1)
+                counter+=1
+            if counter >10:
+                raise Exception('Cookie button not found')
+                break
+    def extract_data_from_page(self):
+        articles_box = self.driver.find_element(By.XPATH, self._articles_xpath)
+        articles = articles_box.find_elements(By.XPATH, 'div')
+        for article in articles:
+            article_info = article.find_element(By.XPATH, self._article_info_xpath).text
+            rows = article_info.split('\n')
+            address = rows[0].split(',')[-1]
+            rooms = rows[1].split(',')[0].split(' ')[-1]
+            size = rows[1].split(',')[1]
+            price = rows[2]
+            
+            self.scraped_data.address.append(address)
+            self.scraped_data.flat_size_rooms.append(rooms)
+            self.scraped_data.flat_size_m.append(size)
+            self.scraped_data.price.append(price)
+            self.scraped_data.date.append(get_current_datetime_string())
+            self.scraped_data.web_page.append(self.web_page_name)
+            self.scraped_data.link.append(article.find_element(By.XPATH, self._link_xpath).get_attribute('href'))
+    def next_page_button_click(self):
+        pass
+    def scroll_down(self):
+        pass
+    
+class ScrapedDataComparator:
+    """Class used for comparing two excels
+    """
+
+    def __init__(self, new_data_frame:pd.DataFrame, old_data_frame:pd.DataFrame) -> None:
+        self.old_data_frame = old_data_frame
+        self.new_data_frame = new_data_frame
         
+        self.old_data_frame = self.old_data_frame.drop('date', axis=1)
+        self.new_data_frame = self.new_data_frame.drop('date', axis=1)
+
+        self.diff_data()
+
+    def diff_data(self):
+        """Find differences between dataframes
+        - new data are saved to new_data
+        - withdrawn offeres are in missing_data
+        """
+        #Find differences between dataframes
+        merged_df = self.old_data_frame.merge(self.new_data_frame, indicator=True, how='outer')
+        diff_rows = merged_df[merged_df['_merge'] != 'both']
+        
+        self.missing_data = diff_rows[diff_rows['_merge'] == 'right_only']
+        self.new_data = diff_rows[diff_rows['_merge'] == 'left_only']  
         
 if __name__ =='__main__':        
     url = 'https://www.bezrealitky.cz/vyhledat?offerType=PRONAJEM&estateType=BYT&disposition=DISP_2_KK&disposition=DISP_2_1&disposition=DISP_3_KK&disposition=DISP_3_1&priceTo=15000&surfaceFrom=40&regionOsmIds=R438344&osm_value=Plze%C5%88%2C+okres+Plze%C5%88-m%C4%9Bsto%2C+Plze%C5%88sk%C3%BD+kraj%2C+Jihoz%C3%A1pad%2C+%C4%8Cesko#lat=49.74172501797827&lng=13.371914800000013&zoom=11.95907496555022'    
-    br = BezrealitkyScraper(web_page_link = url, IS_SILENT=1)
+    url = 'https://www.ulovdomov.cz/pronajem-bytu-nejnovejsi/plzen/dispozice-2-kk?gclid=CjwKCAjw_aemBhBLEiwAT98FMoHCx29PSApKtQIJ1QVNEBn_wuLGA21TwoQGwOHx8--t4E9g7l_ncBoC3K8QAvD_BwE&dispozice=2-1%2C3-kk%2C4-kk%2C4-1&cena-do=170000-kc&od=50-m2&bounds=49.805786%3B13.475846%3B49.677608%3B13.268000&location=Plze%C5%88'
+    # br = BezrealitkyScraper(web_page_link = url, IS_SILENT=1)
+    try:
+        ud = UlovDomovScraper(web_page_link = url, IS_SILENT=0)
+    except:
+        pass
+    finally:
+        print('done')

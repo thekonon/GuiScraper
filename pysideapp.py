@@ -7,7 +7,7 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
 from MainWindowGUI_ui import Ui_MainWindow
 from SettingsDialog_ui import Ui_Dialog
-from scrapers import BezrealitkyScraper, get_current_datetime_string
+from scrapers import BezrealitkyScraper, get_current_datetime_string, ScrapedDataComparator
 
 def is_valid_url(url):
     # Regular expression pattern to match a valid URL
@@ -20,6 +20,7 @@ def is_valid_url(url):
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
     return bool(re.match(url_pattern, url))
+
 
 
 class SettingsDialogWrapper(QDialog, Ui_Dialog):
@@ -91,7 +92,10 @@ class GuiLoader(QMainWindow, Ui_MainWindow):
         self.ExportButton.clicked.connect(self.on_export_button_clicked)
         self.tableWidget.itemDoubleClicked.connect(self.on_table_widget_item_clicked)       
         self.tableWidget.itemSelectionChanged.connect(self.on_column_selected)
-        self.settingsButton.clicked.connect(self.on_settings_button_clicked)  
+        self.settingsButton.clicked.connect(self.on_settings_button_clicked)
+        self.CurrentListingButton.clicked.connect(self.on_current_listing_button_clicked)
+        self.NewListingButton.clicked.connect(self.on_new_listing_button_clicked)
+        self.RemoveListingButton.clicked.connect(self.on_remove_listing_button_clicked)  
     def on_ud_button_clicked(self):
         print("UlovDomov button clicked!")    
     def on_table_widget_item_clicked(self, item):
@@ -136,10 +140,9 @@ class ScrapperApp(GuiLoader):
         sys.exit(self.app.exec())
     
     def init_variables(self):
-        """
-        Internal variables are initialized here 
-        """
+        """Internal variables are initialized here"""
         self._json_data_file_name = "config.json"
+        #Tries to find json file
         try:
             with open(self._json_data_file_name, 'r') as json_file:
                 loaded_list = json.load(json_file)     
@@ -151,7 +154,6 @@ class ScrapperApp(GuiLoader):
                            'browser': 'firefox',
                            'is_silent': 0}
         self.__dict__.update(loaded_list)
-        
     def save_config(self):
         loaded_list = {'bez_realitky_url': self.bez_realitky_url,
                            'ulov_domov_url': self.ulov_domov_url,
@@ -176,10 +178,29 @@ class ScrapperApp(GuiLoader):
         print('Exporting table')
         self.remove_old_excels()
         self.data_table.to_excel(f"ScrapedData{get_current_datetime_string()}.xlsx")
-    def print_table(self):
+    def on_current_listing_button_clicked(self):
+        self.print_table(table = 0)
+    def on_new_listing_button_clicked(self):
+        self.load_old_excel()
+        self.comparator = ScrapedDataComparator(self.data_table, self.old_data_table)
+        self.print_table(table=1)
+    def on_remove_listing_button_clicked(self):
+        self.load_old_excel()
+        self.comparator = ScrapedDataComparator(self.data_table, self.old_data_table)
+        self.print_table(table=2)
+    def print_table(self, table = 0):
         table_widget = self.tableWidget
-        df_table = self.data_table
-        
+        if table == 0:
+            df_table = self.data_table
+        elif table == 1:
+            print('Setting new data: ')
+            print(self.comparator.new_data)
+            df_table = self.comparator.new_data
+        elif table == 2:
+            print('Setting removed data: ')
+            print(self.comparator.missing_data)
+            df_table = self.comparator.missing_data
+            
         table_widget.setRowCount(df_table.shape[0])
         table_widget.setColumnCount(df_table.shape[1])
         table_widget.setHorizontalHeaderLabels(df_table.columns)
@@ -204,6 +225,15 @@ class ScrapperApp(GuiLoader):
                 print(file_path)
                 os.remove(file_path)
             print("Files removed successfully.")
+    def load_old_excel(self):
+        files = glob.glob(os.path.join('', "ScrapedData*.xlsx"))
+        if len(files)>1:
+            print('Warning: multiple files found, selecting first of them')
+            file = files[0]
+        else:
+            file = files[0]
+        self.old_data_table = pd.read_excel(file, sheet_name=0)
+        self.old_data_table = self.old_data_table.drop(self.old_data_table.columns[0], axis=1)
 if __name__ == "__main__":
     window = ScrapperApp()
     
