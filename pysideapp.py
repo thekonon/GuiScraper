@@ -103,7 +103,7 @@ class GuiLoader(QMainWindow, Ui_MainWindow):
         if is_valid_url(url):
             try:
                 print("Opening page: "+url)
-                webbrowser.open('http://seznam.cz',new=0)
+                webbrowser.open(url,new=0)
             except Exception as e:
                 pass
             finally:
@@ -137,8 +137,7 @@ class ScrapperApp(GuiLoader):
         super().__init__()
         self.init_variables()
         self.show()
-        sys.exit(self.app.exec())
-    
+        sys.exit(self.app.exec())    
     def init_variables(self):
         """Internal variables are initialized here"""
         self._json_data_file_name = "config.json"
@@ -194,12 +193,13 @@ class ScrapperApp(GuiLoader):
             df_table = self.data_table
         elif table == 1:
             print('Setting new data: ')
-            print(self.comparator.new_data)
-            df_table = self.comparator.new_data
-        elif table == 2:
-            print('Setting removed data: ')
             print(self.comparator.missing_data)
             df_table = self.comparator.missing_data
+        elif table == 2:
+            print('Setting removed data: ')
+            print(self.comparator.new_data)
+            df_table = self.comparator.new_data
+            
             
         table_widget.setRowCount(df_table.shape[0])
         table_widget.setColumnCount(df_table.shape[1])

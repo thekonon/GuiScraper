@@ -5,6 +5,7 @@ from selenium.common.exceptions import (ElementNotInteractableException,
                                         NoSuchElementException)
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.keys import Keys
 from datetime import datetime
 
 def get_current_datetime_string():
@@ -238,9 +239,15 @@ class UlovDomovScraper(MyScraper):
     def init_constant_properties(self):
         """Constants for searching are stored here"""
         self._cookie_button_xpath = '//*[@id="CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll"]'
+        self._close_button_xpath = '/html/body/div[4]/div[3]/div/section/div[1]/button'
         self._articles_xpath =      '/html/body/div[2]/div[2]/div/div[2]/div[1]/div/div/div[2]'
         self._article_info_xpath =  'div[1]/div/div[2]/div/div[1]/a'
         self._link_xpath =          'div[1]/div/div[2]/div/div[1]/a'
+        self._flat_size_rooms_xpath = '/html/body/div[1]/div[2]/div/div[2]/div[1]/div/div[2]/div/div[1]/div[3]/div[1]/div[3]/a/p'
+        self._flat_size_m_xpath = '/html/body/div[1]/div[2]/div/div[2]/div[1]/div/div[2]/div/div[1]/div[3]/div[1]/div[3]/a/p'
+        self._price_xpath = '/html/body/div[1]/div[2]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div[2]/div/div[1]/h2/span'
+        self._extra_price_xpath = '/html/body/div[1]/div[2]/div/div[2]/div[1]/div/div[2]/div/div[2]/div/div[2]/div/div[2]/p'
+        
     def full_scrape_cycle(self):
         self.click_cookie_button()
         time.sleep(0.5)
@@ -270,21 +277,56 @@ class UlovDomovScraper(MyScraper):
     def extract_data_from_page(self):
         articles_box = self.driver.find_element(By.XPATH, self._articles_xpath)
         articles = articles_box.find_elements(By.XPATH, 'div')
+        original_window = self.driver.current_window_handle
         for article in articles:
-            article_info = article.find_element(By.XPATH, self._article_info_xpath).text
-            rows = article_info.split('\n')
-            address = rows[0].split(',')[-1]
-            rooms = rows[1].split(',')[0].split(' ')[-1]
-            size = rows[1].split(',')[1]
-            price = rows[2]
+            self.driver.switch_to.window(original_window)
+            try:
+                self.driver.find_element(By.XPATH, self._close_button_xpath).click()
+            except Exception:
+                print('Nenalezeno čudlítko')
+            finally:
+                pass
+            try:
+                link = article.find_element(By.XPATH, self._link_xpath).get_attribute('href')
+                self.scraped_data.link.append(link)
+                self.driver.switch_to.new_window('tab')
+                self.driver.get(self.scraped_data.link[-1])
+                time.sleep(1)
+                try:
+                    self.scraped_data.flat_size_rooms.append(self.driver.find_element(By.XPATH, self._flat_size_rooms_xpath).text)
+                except Exception:
+                    self.scraped_data.flat_size_rooms.append('Not found')
+                try:
+                    self.scraped_data.flat_size_m.append(self.driver.find_element(By.XPATH, self._flat_size_m_xpath).text)
+                except Exception:
+                    self.scraped_data.flat_size_m.append('Not found')
+                try:
+                    self.scraped_data.price.append(self.driver.find_element(By.XPATH, self._price_xpath).text)
+                except Exception:
+                    self.scraped_data.price.append('Not found')
+                try:
+                    self.scraped_data.extra_price.append(self.driver.find_element(By.XPATH, self._extra_price_xpath).text)
+                except Exception:
+                    self.scraped_data.extra_price.append('Not found')                
+                self.scraped_data.date.append(get_current_datetime_string())
+                self.scraped_data.web_page.append(self.web_page_name)
+                self.driver.close()
+            except Exception:
+                print('Reklama?')
+            # article_info = article.find_element(By.XPATH, self._article_info_xpath).text
+            # rows = article_info.split('\n')
+            # address = rows[0].split(',')[-1]
+            # rooms = rows[1].split(',')[0].split(' ')[-1]
+            # size = rows[1].split(',')[1]
+            # price = rows[2]
             
-            self.scraped_data.address.append(address)
-            self.scraped_data.flat_size_rooms.append(rooms)
-            self.scraped_data.flat_size_m.append(size)
-            self.scraped_data.price.append(price)
-            self.scraped_data.date.append(get_current_datetime_string())
-            self.scraped_data.web_page.append(self.web_page_name)
-            self.scraped_data.link.append(article.find_element(By.XPATH, self._link_xpath).get_attribute('href'))
+            # self.scraped_data.address.append(address)
+            # self.scraped_data.flat_size_rooms.append(rooms)
+            # self.scraped_data.flat_size_m.append(size)
+            # self.scraped_data.price.append(price)
+            # self.scraped_data.date.append(get_current_datetime_string())
+            # self.scraped_data.web_page.append(self.web_page_name)
+            
     def next_page_button_click(self):
         pass
     def scroll_down(self):
@@ -319,9 +361,9 @@ if __name__ =='__main__':
     url = 'https://www.bezrealitky.cz/vyhledat?offerType=PRONAJEM&estateType=BYT&disposition=DISP_2_KK&disposition=DISP_2_1&disposition=DISP_3_KK&disposition=DISP_3_1&priceTo=15000&surfaceFrom=40&regionOsmIds=R438344&osm_value=Plze%C5%88%2C+okres+Plze%C5%88-m%C4%9Bsto%2C+Plze%C5%88sk%C3%BD+kraj%2C+Jihoz%C3%A1pad%2C+%C4%8Cesko#lat=49.74172501797827&lng=13.371914800000013&zoom=11.95907496555022'    
     url = 'https://www.ulovdomov.cz/pronajem-bytu-nejnovejsi/plzen/dispozice-2-kk?gclid=CjwKCAjw_aemBhBLEiwAT98FMoHCx29PSApKtQIJ1QVNEBn_wuLGA21TwoQGwOHx8--t4E9g7l_ncBoC3K8QAvD_BwE&dispozice=2-1%2C3-kk%2C4-kk%2C4-1&cena-do=170000-kc&od=50-m2&bounds=49.805786%3B13.475846%3B49.677608%3B13.268000&location=Plze%C5%88'
     # br = BezrealitkyScraper(web_page_link = url, IS_SILENT=1)
-    try:
-        ud = UlovDomovScraper(web_page_link = url, IS_SILENT=0)
-    except:
-        pass
-    finally:
-        print('done')
+    # try:
+    ud = UlovDomovScraper(web_page_link = url, IS_SILENT=0)
+    # except:
+    #     pass
+    # finally:
+    #     print('done')
