@@ -359,10 +359,13 @@ class ScrapedDataComparator:
         
 if __name__ =='__main__':        
     url = 'https://www.bezrealitky.cz/vyhledat?offerType=PRONAJEM&estateType=BYT&disposition=DISP_2_KK&disposition=DISP_2_1&disposition=DISP_3_KK&disposition=DISP_3_1&priceTo=15000&surfaceFrom=40&regionOsmIds=R438344&osm_value=Plze%C5%88%2C+okres+Plze%C5%88-m%C4%9Bsto%2C+Plze%C5%88sk%C3%BD+kraj%2C+Jihoz%C3%A1pad%2C+%C4%8Cesko#lat=49.74172501797827&lng=13.371914800000013&zoom=11.95907496555022'    
-    url = 'https://www.ulovdomov.cz/pronajem-bytu-nejnovejsi/plzen/dispozice-2-kk?gclid=CjwKCAjw_aemBhBLEiwAT98FMoHCx29PSApKtQIJ1QVNEBn_wuLGA21TwoQGwOHx8--t4E9g7l_ncBoC3K8QAvD_BwE&dispozice=2-1%2C3-kk%2C4-kk%2C4-1&cena-do=170000-kc&od=50-m2&bounds=49.805786%3B13.475846%3B49.677608%3B13.268000&location=Plze%C5%88'
-    # br = BezrealitkyScraper(web_page_link = url, IS_SILENT=1)
+    # url = 'https://www.ulovdomov.cz/pronajem-bytu-nejnovejsi/plzen/dispozice-2-kk?gclid=CjwKCAjw_aemBhBLEiwAT98FMoHCx29PSApKtQIJ1QVNEBn_wuLGA21TwoQGwOHx8--t4E9g7l_ncBoC3K8QAvD_BwE&dispozice=2-1%2C3-kk%2C4-kk%2C4-1&cena-do=170000-kc&od=50-m2&bounds=49.805786%3B13.475846%3B49.677608%3B13.268000&location=Plze%C5%88'
+    # Create instance of bezrealitky scraper - scraping starts automatically
+    br = BezrealitkyScraper(web_page_link = url, IS_SILENT=1)
+    # Get scraped data in form of data frame and print them
+    print(br.scraped_data.get_dataframe())
     # try:
-    ud = UlovDomovScraper(web_page_link = url, IS_SILENT=0)
+    # ud = UlovDomovScraper(web_page_link = url, IS_SILENT=0)
     # except:
     #     pass
     # finally:
